@@ -1,7 +1,7 @@
 'use strict';
 var request = require('request');
 
-const key = "AW5GBJKBXYGBTST3"
+const key = "XXX"
 // ↓のurlで五ヶ月くらい遡れる
 var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=${key}`;
 

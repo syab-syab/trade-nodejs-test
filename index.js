@@ -10,12 +10,12 @@
 const fetch = require("node-fetch")
 const { Pool } = require("pg");
 
-var pass = 'tset-esabatad-database-test';
+var pass = 'XXX';
 
 const pool = new Pool({
-  user: 'postgres',
-  host: 'db.ncddhgoemdbghyzcmvmg.supabase.co',
-  database: 'postgres',
+  user: 'XXX',
+  host: 'XXX',
+  database: 'XXX',
   password: pass,
   port: 5432,
   ssl: {
