@@ -8,7 +8,7 @@
  */
 
 const fetch = require("node-fetch")
-const { Pool } = require("pg");
+const { Pool } = require("pg")
 
 var pass = 'XXX';
 

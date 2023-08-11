@@ -1,9 +1,10 @@
 'use strict';
 var request = require('request');
 
-const key = "AW5GBJKBXYGBTST3"
+
+const pass = "AW5GBJKBXYGBTST3"
 // ↓のurlで五ヶ月くらい遡れる
-var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=${key}`;
+// var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=${pass}`;
 
 // [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last_week": XXX, "last_month": XXX}}
 //           という感じの辞書配列にした方がこのAPIに合っている気がする
@@ -13,7 +14,7 @@ var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&t
 
 // 取得した値がparseFloatしたのにNumber型のままなのは後回し
 
-let rates = {
+let foreignRates = {
   "USD": [
     {
       "today": 0,
@@ -152,35 +153,12 @@ let rates = {
   ],
 }
 
-// ひな型完成
-Object.keys(rates).forEach((key) => {
-  console.log(key + " : ")
-  Object.keys(rates[key][0]).forEach((vk) => {
-    rates[key][0][vk] = 0.01
-    console.log(vk + " : " + rates[key][0][vk])
-  })
-})
-
-// 念のためのコード
-// let code = [
-//   {"id": 1, "value": "USD", "name": "USD(アメリカ)"},
-//   {"id": 2, "value": "EUR", "name": "EUR(ヨーロッパ)"},
-//   {"id": 3, "value": "GBP", "name": "GBP(イギリス)"},
-//   {"id": 4, "value": "CHF", "name": "CHF(スイス)"},
-//   {"id": 5, "value": "AUD", "name": "AUD(オーストラリア)"},
-//   {"id": 6, "value": "NZD", "name": "NZD(ニュージーランド)"},
-//   {"id": 7, "value": "NOK", "name": "NOK(ノルウェー)"},
-//   {"id": 8, "value": "CAD", "name": "CAD(カナダ)"},
-//   {"id": 9, "value": "INR", "name": "INR(インド)"},
-//   {"id": 10, "value": "IDR", "name": "IDR(インドネシア)"},
-//   {"id": 11, "value": "MYR", "name": "MYR(マレーシア)"},
-//   {"id": 12, "value": "SGD", "name": "SGD(シンガポール)"},
-//   {"id": 13, "value": "HKD", "name": "HKD(香港)"},
-//   {"id": 14, "value": "PHP", "name": "PHP(フィリピン)"},
-//   {"id": 15, "value": "THB", "name": "THB(タイ)"},
-//   {"id": 16, "value": "KRW", "name": "KRW(韓国)"},
-//   {"id": 17, "value": "CNY", "name": "CNY(中国)"}
-// ]
+// pythonで言うところのsleep
+// 引数はミリ秒(1000 = 1秒)
+const sleep = (waitTime)=>{
+  const startTime = Date.now();
+  while( Date.now() - startTime < waitTime );
+};
 
 // アクセスの間隔は3～5秒
 
@@ -192,6 +170,82 @@ Object.keys(rates).forEach((key) => {
 // yesterday = 1
 // last-week = 1, 2, 3, 4, 5, 6, 7 の中央値
 // last-months = 1 ～ 30 までの中央値
+
+
+
+// ex)...
+// let foreignRates = {
+//   "USD": [
+//     {
+//       "today": 0,
+//       "yesterday": 0,
+//       "last_week": 0,
+//       "last_month": 0
+//     }
+//   ],
+//   "EUR": [
+//     {
+//       "today": 0,
+//       "yesterday": 0,
+//       "last_week": 0,
+//       "last_month": 0
+//     }
+//   ],
+//   ........
+// }
+
+// ひな型完成
+const fetchRates = (rates) => {
+  // 渡されたオブジェクトからキー(通貨コード)を取得 -> 配列にする
+  Object.keys(rates).forEach((key) => {
+    // ここでurlを定義
+    const url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=${key}&apikey=${pass}`
+    console.log(url)
+    console.log(key + " : ")
+    // 各通貨コード内のオブジェクトのキー(期間)を取得 -> 配列にする
+    Object.keys(rates[key][0]).forEach((vk) => {
+      // 各期間にレート値を代入
+      // ex. rates["USD"][0]["today"] = 0.0069
+      switch(vk) {
+        case "today":
+          const todayIndex = [0]
+          console.log(todayIndex)
+          rates[key][0][vk] = 0.01
+          console.log(vk + " : " + rates[key][0][vk])
+          break;
+        case "yesterday":
+          const yesterdayIndex = [1]
+          console.log(yesterdayIndex)
+          rates[key][0][vk] = 0.01
+          console.log(vk + " : " + rates[key][0][vk])
+          break;
+        case "last_week":
+          const lastWeekIndex = [1, 2, 3, 4, 5, 6, 7]
+          console.log(lastWeekIndex)
+          rates[key][0][vk] = 0.01
+          console.log(vk + " : " + rates[key][0][vk])
+          break;
+        case "last_month":
+          const lastMonthIndex = [
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30
+          ]
+          console.log(lastMonthIndex)
+          rates[key][0][vk] = 0.01
+          console.log(vk + " : " + rates[key][0][vk])
+          break;
+        default:
+          console.log("error")
+      }
+      // rates[key][0][vk] = 0.01
+      // console.log(vk + " : " + rates[key][0][vk])
+    })
+    sleep(3000)
+  })
+}
+
+// fetchRates(foreignRates)
 
 // ここから下をforとかで回す
 // request.get({
@@ -216,3 +270,61 @@ Object.keys(rates).forEach((key) => {
 //       console.log(dataValues);
 //     }
 // });
+
+
+// データベースへの処理
+// オブジェクトにレートを格納し終えてから最後に行う
+
+// データベースへの接続に必要なライブラリ
+// const fetch = require("node-fetch")
+// const { Pool } = require("pg")
+
+
+// データベースへの接続に必要なパス
+// var dbpass = 'XXX';
+
+// データベースへの接続に必要な情報
+// const pool = new Pool({
+//   user: 'XXX',
+//   host: 'XXX',
+//   database: 'XXX',
+//   password: dbpass,
+//   port: 5432,
+//   ssl: {
+//     sslmode: 'require',
+//     rejectUnauthorized: false
+//   }
+// })
+
+
+// value = レートの値(float)
+// date = その日の日付(string)
+// baseCode = デフォルト値はJPY(string)
+// payCode = 換算される外国の通貨コード(string)
+// period = 対象期間(string)
+const sendSql = (value, date, baseCode='JPY', payCode, period) => {
+  // pool.query(`UPDATE rate SET rate_val=${value}, updated='${updated_val}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='${period}'`)
+  console.log(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='${period}'`)
+}
+
+// この関数で締める
+const dbWrite = (rates) => {
+    // 渡されたオブジェクトからキー(通貨コード)を取得 -> 配列にする
+    Object.keys(rates).forEach((key) => {
+      const payCode = key
+      console.log(payCode)
+      // 各通貨コード内のオブジェクトのキー(期間)を取得 -> 配列にする
+      Object.keys(rates[key][0]).forEach((vk) => {
+        const period = vk
+        // console.log(period)
+        const value = rates[key][0][vk]
+        // console.log(value)
+        const today_stamp = new Date()
+        const date = [today_stamp.getFullYear(), today_stamp.getMonth() + 1, today_stamp.getDate()].join('-')
+        // console.log(date + " = " + typeof(date))
+        sendSql(value, date, "JPY", payCode, period)
+      })
+    })
+}
+
+dbWrite(foreignRates)
