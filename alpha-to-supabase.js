@@ -1,7 +1,7 @@
 'use strict';
 var request = require('request');
 
-const key = "XXX"
+const key = "AW5GBJKBXYGBTST3"
 // ↓のurlで五ヶ月くらい遡れる
 var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=${key}`;
 
@@ -152,26 +152,35 @@ let rates = {
   ],
 }
 
+// ひな型完成
+Object.keys(rates).forEach((key) => {
+  console.log(key + " : ")
+  Object.keys(rates[key][0]).forEach((vk) => {
+    rates[key][0][vk] = 0.01
+    console.log(vk + " : " + rates[key][0][vk])
+  })
+})
+
 // 念のためのコード
-let code = [
-  {"id": 1, "value": "USD", "name": "USD(アメリカ)"},
-  {"id": 2, "value": "EUR", "name": "EUR(ヨーロッパ)"},
-  {"id": 3, "value": "GBP", "name": "GBP(イギリス)"},
-  {"id": 4, "value": "CHF", "name": "CHF(スイス)"},
-  {"id": 5, "value": "AUD", "name": "AUD(オーストラリア)"},
-  {"id": 6, "value": "NZD", "name": "NZD(ニュージーランド)"},
-  {"id": 7, "value": "NOK", "name": "NOK(ノルウェー)"},
-  {"id": 8, "value": "CAD", "name": "CAD(カナダ)"},
-  {"id": 9, "value": "INR", "name": "INR(インド)"},
-  {"id": 10, "value": "IDR", "name": "IDR(インドネシア)"},
-  {"id": 11, "value": "MYR", "name": "MYR(マレーシア)"},
-  {"id": 12, "value": "SGD", "name": "SGD(シンガポール)"},
-  {"id": 13, "value": "HKD", "name": "HKD(香港)"},
-  {"id": 14, "value": "PHP", "name": "PHP(フィリピン)"},
-  {"id": 15, "value": "THB", "name": "THB(タイ)"},
-  {"id": 16, "value": "KRW", "name": "KRW(韓国)"},
-  {"id": 17, "value": "CNY", "name": "CNY(中国)"}
-]
+// let code = [
+//   {"id": 1, "value": "USD", "name": "USD(アメリカ)"},
+//   {"id": 2, "value": "EUR", "name": "EUR(ヨーロッパ)"},
+//   {"id": 3, "value": "GBP", "name": "GBP(イギリス)"},
+//   {"id": 4, "value": "CHF", "name": "CHF(スイス)"},
+//   {"id": 5, "value": "AUD", "name": "AUD(オーストラリア)"},
+//   {"id": 6, "value": "NZD", "name": "NZD(ニュージーランド)"},
+//   {"id": 7, "value": "NOK", "name": "NOK(ノルウェー)"},
+//   {"id": 8, "value": "CAD", "name": "CAD(カナダ)"},
+//   {"id": 9, "value": "INR", "name": "INR(インド)"},
+//   {"id": 10, "value": "IDR", "name": "IDR(インドネシア)"},
+//   {"id": 11, "value": "MYR", "name": "MYR(マレーシア)"},
+//   {"id": 12, "value": "SGD", "name": "SGD(シンガポール)"},
+//   {"id": 13, "value": "HKD", "name": "HKD(香港)"},
+//   {"id": 14, "value": "PHP", "name": "PHP(フィリピン)"},
+//   {"id": 15, "value": "THB", "name": "THB(タイ)"},
+//   {"id": 16, "value": "KRW", "name": "KRW(韓国)"},
+//   {"id": 17, "value": "CNY", "name": "CNY(中国)"}
+// ]
 
 // アクセスの間隔は3～5秒
 
