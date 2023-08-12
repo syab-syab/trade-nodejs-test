@@ -2,14 +2,14 @@
 var request = require('request');
 
 
-const pass = "AW5GBJKBXYGBTST3"
+const pass = "XXX"
 // ↓のurlで五ヶ月くらい遡れる
 // dailyだと土日のデータが無い
-// `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`;
+// `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=XXX`;
 
 // w
-// `https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`
-// `https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`
+// `https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=JPY&to_symbol=USD&apikey=XXX`
+// `https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=JPY&to_symbol=USD&apikey=XXX`
 
 // [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last_week": XXX, "last_month": XXX}}
 //           という感じの辞書配列にした方がこのAPIに合っている気がする
@@ -101,7 +101,7 @@ const fetchRates = (rates) => {
 
 // ここから下をforとかで回す
 request.get({
-    url: "https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3",
+    url: "https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=XXX",
     // url: url,
     json: true,
     headers: {'User-Agent': 'request'}
