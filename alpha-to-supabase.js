@@ -4,7 +4,12 @@ var request = require('request');
 
 const pass = "AW5GBJKBXYGBTST3"
 // ↓のurlで五ヶ月くらい遡れる
-// var url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=${pass}`;
+// dailyだと土日のデータが無い
+// `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`;
+
+// w
+// `https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`
+// `https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3`
 
 // [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last_week": XXX, "last_month": XXX}}
 //           という感じの辞書配列にした方がこのAPIに合っている気がする
@@ -14,143 +19,46 @@ const pass = "AW5GBJKBXYGBTST3"
 
 // 取得した値がparseFloatしたのにNumber型のままなのは後回し
 
+// JPY / XX のレート
 let foreignRates = {
-  "USD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "EUR": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "GBP": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "CHF": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "AUD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "NZD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "NOK": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "CAD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "INR": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "IDR": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "MYR": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "SGD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "HKD": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "PHP": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "THB": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "KRW": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
-  "CNY": [
-    {
-      "today": 0,
-      "yesterday": 0,
-      "last_week": 0,
-      "last_month": 0
-    }
-  ],
+  "USD": 0,
+  "EUR": 0,
+  "GBP": 0,
+  "CHF": 0,
+  "AUD": 0,
+  "NZD": 0,
+  "NOK": 0,
+  "CAD": 0,
+  "INR": 0,
+  "IDR": 0,
+  "MYR": 0,
+  "SGD": 0,
+  "HKD": 0,
+  "PHP": 0,
+  "THB": 0,
+  "KRW": 0,
+  "CNY": 0,
+}
+
+// XX / JPY のレート
+let jpyRates = {
+  "USD": 0,
+  "EUR": 0,
+  "GBP": 0,
+  "CHF": 0,
+  "AUD": 0,
+  "NZD": 0,
+  "NOK": 0,
+  "CAD": 0,
+  "INR": 0,
+  "IDR": 0,
+  "MYR": 0,
+  "SGD": 0,
+  "HKD": 0,
+  "PHP": 0,
+  "THB": 0,
+  "KRW": 0,
+  "CNY": 0,
 }
 
 // pythonで言うところのsleep
@@ -162,37 +70,20 @@ const sleep = (waitTime)=>{
 
 // アクセスの間隔は3～5秒
 
-// 週と月のレートは平均ではなく中央値が良さげ
-// 途中で平均値に変えたくなるかもしれないからいつでも変られるように
-
-// forで回すなら
-// today = 0
-// yesterday = 1
-// last-week = 1, 2, 3, 4, 5, 6, 7 の中央値
-// last-months = 1 ～ 30 までの中央値
+// データベースには当日分のレートしか格納できないようになってしまった
 
 
 
 // ex)...
 // let foreignRates = {
-//   "USD": [
-//     {
-//       "today": 0,
-//       "yesterday": 0,
-//       "last_week": 0,
-//       "last_month": 0
-//     }
-//   ],
-//   "EUR": [
-//     {
-//       "today": 0,
-//       "yesterday": 0,
-//       "last_week": 0,
-//       "last_month": 0
-//     }
-//   ],
+//   "USD": 0,
+//   "EUR": 0,
 //   ........
 // }
+
+// デイリーのapiにアクセスすると当日から五ヶ月ほど前のレートが取れるから
+// そのレートをまるごと文字列として取得してデータベースにぶち込む
+// React.jsで取り出すときにJSON.parseで行けると思う
 
 // ひな型完成
 const fetchRates = (rates) => {
@@ -201,75 +92,36 @@ const fetchRates = (rates) => {
     // ここでurlを定義
     const url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=${key}&apikey=${pass}`
     console.log(url)
-    console.log(key + " : ")
-    // 各通貨コード内のオブジェクトのキー(期間)を取得 -> 配列にする
-    Object.keys(rates[key][0]).forEach((vk) => {
-      // 各期間にレート値を代入
-      // ex. rates["USD"][0]["today"] = 0.0069
-      switch(vk) {
-        case "today":
-          const todayIndex = [0]
-          console.log(todayIndex)
-          rates[key][0][vk] = 0.01
-          console.log(vk + " : " + rates[key][0][vk])
-          break;
-        case "yesterday":
-          const yesterdayIndex = [1]
-          console.log(yesterdayIndex)
-          rates[key][0][vk] = 0.01
-          console.log(vk + " : " + rates[key][0][vk])
-          break;
-        case "last_week":
-          const lastWeekIndex = [1, 2, 3, 4, 5, 6, 7]
-          console.log(lastWeekIndex)
-          rates[key][0][vk] = 0.01
-          console.log(vk + " : " + rates[key][0][vk])
-          break;
-        case "last_month":
-          const lastMonthIndex = [
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-            11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-            21, 22, 23, 24, 25, 26, 27, 28, 29, 30
-          ]
-          console.log(lastMonthIndex)
-          rates[key][0][vk] = 0.01
-          console.log(vk + " : " + rates[key][0][vk])
-          break;
-        default:
-          console.log("error")
-      }
-      // rates[key][0][vk] = 0.01
-      // console.log(vk + " : " + rates[key][0][vk])
-    })
+    console.log(key + " : " + rates[key])
     sleep(3000)
-  })
-}
+    })
+  }
 
 // fetchRates(foreignRates)
 
 // ここから下をforとかで回す
-// request.get({
-//     url: url,
-//     json: true,
-//     headers: {'User-Agent': 'request'}
-//   }, (err, res, data) => {
-//     if (err) {
-//       console.log('Error:', err);
-//     } else if (res.statusCode !== 200) {
-//       console.log('Status:', res.statusCode);
-//     } else {
-//       const originData = data['Time Series FX (Daily)']
-      // \データから直接キーを取ることでわざわざ自前で日付を取得する必要無し
-      // \不要になったが念のためコメントアウトして残しておく
-      // \const dataKeys = Object.keys(originData)
-      // \値を取得できるから日付を指定する必要無し
-      // \それぞれの['4. close']をしていする
-      // const dataValues = Object.values(originData)
-      // \for文等で回すのはここ
+request.get({
+    url: "https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3",
+    // url: url,
+    json: true,
+    headers: {'User-Agent': 'request'}
+  }, (err, res, data) => {
+    if (err) {
+      console.log('Error:', err);
+    } else if (res.statusCode !== 200) {
+      console.log('Status:', res.statusCode);
+    } else {
+      // まずデイリーのレートを取得
+      const originData = data['Time Series FX (Daily)']
+      console.log(originData)
+      // データベース格納用に文字列変換 → する必要ないかも
+      // const stringData = JSON.stringify(originData)
+      // 文字列化したjsonを戻す
+      // const jsonData = JSON.parse(stringData)
+      // console.log(jsonData['2023-08-11'])
 
-//       console.log(dataValues);
-//     }
-// });
+    }
+});
 
 
 // データベースへの処理
@@ -297,34 +149,31 @@ const fetchRates = (rates) => {
 // })
 
 
+
 // value = レートの値(float)
 // date = その日の日付(string)
 // baseCode = デフォルト値はJPY(string)
 // payCode = 換算される外国の通貨コード(string)
 // period = 対象期間(string)
-const sendSql = (value, date, baseCode='JPY', payCode, period) => {
+// 当日のレートしか入れないから後でsql分を変えておく
+const sendSql = (value, date, payCode, baseCode='JPY',) => {
   // pool.query(`UPDATE rate SET rate_val=${value}, updated='${updated_val}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='${period}'`)
-  console.log(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='${period}'`)
+  console.log(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='today'`)
 }
 
 // この関数で締める
 const dbWrite = (rates) => {
     // 渡されたオブジェクトからキー(通貨コード)を取得 -> 配列にする
     Object.keys(rates).forEach((key) => {
+
+
+      const value = rates[key]
+      const today_stamp = new Date()
+      const date = [today_stamp.getFullYear(), today_stamp.getMonth() + 1, today_stamp.getDate()].join('-')
       const payCode = key
-      console.log(payCode)
-      // 各通貨コード内のオブジェクトのキー(期間)を取得 -> 配列にする
-      Object.keys(rates[key][0]).forEach((vk) => {
-        const period = vk
-        // console.log(period)
-        const value = rates[key][0][vk]
-        // console.log(value)
-        const today_stamp = new Date()
-        const date = [today_stamp.getFullYear(), today_stamp.getMonth() + 1, today_stamp.getDate()].join('-')
-        // console.log(date + " = " + typeof(date))
-        sendSql(value, date, "JPY", payCode, period)
-      })
+      sendSql(value, date, payCode)
     })
 }
 
-dbWrite(foreignRates)
+// 
+// dbWrite(foreignRates)

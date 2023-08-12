@@ -1,0 +1,16 @@
+trade-rate
+
+id: int
+base_code: string
+payment_code: string
+rate_val: float
+updated: text
+rate_period: text
+
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+
+id: int
+base_code: string
+payment_code: string
+updated: text
+rate_val: text(or json) ← new (デイリーのapiから得たレートをそのままぶち込む)
