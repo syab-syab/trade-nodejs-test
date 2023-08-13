@@ -10,6 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.26.0",
-    "request": "^2.88.2"
-  }
+    "node-fetch": "^3.3.2",
+    "request": "^2.88.2",
+    "sync-request": "^6.1.0"
+  },
+  "type": "module"
 }

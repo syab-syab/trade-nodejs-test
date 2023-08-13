@@ -1,25 +1,20 @@
-'use strict';
-var request = require('request');
+// 'use strict';
+// var request = require('request');
+// var request = require('sync-request');
+import fetch from "node-fetch"
 
 
 const pass = "XXX"
 // ↓のurlで五ヶ月くらい遡れる
 // dailyだと土日のデータが無い
 // `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=XXX`;
-
-// w
-// `https://www.alphavantage.co/query?function=FX_WEEKLY&from_symbol=JPY&to_symbol=USD&apikey=XXX`
-// `https://www.alphavantage.co/query?function=FX_MONTHLY&from_symbol=JPY&to_symbol=USD&apikey=XXX`
-
-// [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last_week": XXX, "last_month": XXX}}
-//           という感じの辞書配列にした方がこのAPIに合っている気がする
-//           指定したレートが一年分くらい一度に表示されるから
-//           その方がアクセス数を減らすことができる
-//           あと、requestsにタイムアウトの時間を指定したりエラー処理を書いたりしてAPIにアクセスできなかった時の対策をする
+// ↑のAPIから取ってきたデータをそのまま丸ごとぶち込む
+// freeプランだと1分間に5回のアクセスが限界らしい
 
 // 取得した値がparseFloatしたのにNumber型のままなのは後回し
 
-// JPY / XX のレート
+// JPY / XXX のレート
+// テストの時は USD 以外コメントアウト
 let foreignRates = {
   "USD": 0,
   "EUR": 0,
@@ -40,7 +35,7 @@ let foreignRates = {
   "CNY": 0,
 }
 
-// XX / JPY のレート
+// XXX / JPY のレート
 let jpyRates = {
   "USD": 0,
   "EUR": 0,
@@ -85,43 +80,63 @@ const sleep = (waitTime)=>{
 // そのレートをまるごと文字列として取得してデータベースにぶち込む
 // React.jsで取り出すときにJSON.parseで行けると思う
 
+const setValue = (variable, value) => {
+  variable = value
+  // console.log(foreignRates['USD'])
+  console.log(value)
+}
+
 // ひな型完成
+// この関数は現時点ではJPY / XXX の値のみ
+// 他の関数を作成するかどうか
 const fetchRates = (rates) => {
   // 渡されたオブジェクトからキー(通貨コード)を取得 -> 配列にする
   Object.keys(rates).forEach((key) => {
     // ここでurlを定義
     const url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=${key}&apikey=${pass}`
-    console.log(url)
-    console.log(key + " : " + rates[key])
+
+    // どうやってもurlから取ってきた値が代入できないので次回へ持ち越し
+    fetch(url)
+      .then(
+        (response) => response.json()
+      )
+      .then(
+        (data) => setValue(rates[key], data['Time Series FX (Daily)'])
+      )
     sleep(3000)
+    console.log(rates)
     })
   }
 
-// fetchRates(foreignRates)
+// apiにアクセスして値を取ってくる関数
+const requestApiData = (apiUrl) => {
+  return fetch(apiUrl)
+  // .then(
+  //   (response) => response.json()
+  // )
+  // .then(
+  //   (data) => console.log(data)
+  // )
+  // request.get({
+  //   url: apiUrl,
+  //   json: true,
+  //   headers: {'User-Agent': 'request'}
+  //   }, (err, res, data) => {
+  //     if (err) {
+  //       console.log('Error:', err);
+  //     } else if (res.statusCode !== 200) {
+  //       console.log('Status:', res.statusCode);
+  //     } else {
+  //       foreignRates['USD'] = data['Time Series FX (Daily)']
+  //     }
+  // })
 
-// ここから下をforとかで回す
-request.get({
-    url: "https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=XXX",
-    // url: url,
-    json: true,
-    headers: {'User-Agent': 'request'}
-  }, (err, res, data) => {
-    if (err) {
-      console.log('Error:', err);
-    } else if (res.statusCode !== 200) {
-      console.log('Status:', res.statusCode);
-    } else {
-      // まずデイリーのレートを取得
-      const originData = data['Time Series FX (Daily)']
-      console.log(originData)
-      // データベース格納用に文字列変換 → する必要ないかも
-      // const stringData = JSON.stringify(originData)
-      // 文字列化したjsonを戻す
-      // const jsonData = JSON.parse(stringData)
-      // console.log(jsonData['2023-08-11'])
+}
 
-    }
-});
+fetchRates(foreignRates)
+
+// console.log(foreignRates)
+
 
 
 // データベースへの処理
@@ -156,13 +171,16 @@ request.get({
 // payCode = 換算される外国の通貨コード(string)
 // period = 対象期間(string)
 // 当日のレートしか入れないから後でsql分を変えておく
-const sendSql = (value, date, payCode, baseCode='JPY',) => {
-  // pool.query(`UPDATE rate SET rate_val=${value}, updated='${updated_val}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='${period}'`)
-  console.log(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}' AND rate_period='today'`)
+// JPY / XXX と XXX / JPY のレートを同じ関数にするか迷う
+const sendSql = (value, date, payCode, baseCode) => {
+  // pool.query(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}'`)
+  console.log(`UPDATE rate SET rate_val=${value}, updated='${date}' WHERE base_code='${baseCode}' AND payment_code='${payCode}'`)
+  // pool.query(`INSERT INTO rate(base_code, payment_code, rate_val, updated) VALUES ('${baseCode}', '${payCode}', ${value}, '${date}')`)
+  console.log(`INSERT INTO rate(base_code, payment_code, rate_val, updated) VALUES ('${baseCode}', '${payCode}', ${value}, '${date}')`)
 }
 
 // この関数で締める
-const dbWrite = (rates) => {
+const dbWriteJpyOther = (rates) => {
     // 渡されたオブジェクトからキー(通貨コード)を取得 -> 配列にする
     Object.keys(rates).forEach((key) => {
 
@@ -171,9 +189,9 @@ const dbWrite = (rates) => {
       const today_stamp = new Date()
       const date = [today_stamp.getFullYear(), today_stamp.getMonth() + 1, today_stamp.getDate()].join('-')
       const payCode = key
-      sendSql(value, date, payCode)
+      sendSql(value, date, payCode, 'JPY')
     })
 }
 
 // 
-// dbWrite(foreignRates)
+// dbWriteJpyOther(foreignRates)
