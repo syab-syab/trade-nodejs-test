@@ -17,22 +17,22 @@ const pass = "XXX"
 // テストの時は USD 以外コメントアウト
 let foreignRates = {
   "USD": 0,
-  "EUR": 0,
-  "GBP": 0,
-  "CHF": 0,
-  "AUD": 0,
-  "NZD": 0,
-  "NOK": 0,
-  "CAD": 0,
-  "INR": 0,
-  "IDR": 0,
-  "MYR": 0,
-  "SGD": 0,
-  "HKD": 0,
-  "PHP": 0,
-  "THB": 0,
-  "KRW": 0,
-  "CNY": 0,
+  // "EUR": 0,
+  // "GBP": 0,
+  // "CHF": 0,
+  // "AUD": 0,
+  // "NZD": 0,
+  // "NOK": 0,
+  // "CAD": 0,
+  // "INR": 0,
+  // "IDR": 0,
+  // "MYR": 0,
+  // "SGD": 0,
+  // "HKD": 0,
+  // "PHP": 0,
+  // "THB": 0,
+  // "KRW": 0,
+  // "CNY": 0,
 }
 
 // XXX / JPY のレート
@@ -80,10 +80,16 @@ const sleep = (waitTime)=>{
 // そのレートをまるごと文字列として取得してデータベースにぶち込む
 // React.jsで取り出すときにJSON.parseで行けると思う
 
-const setValue = (variable, value) => {
-  variable = value
-  // console.log(foreignRates['USD'])
-  console.log(value)
+// この関数で代入まで行う
+// apiにアクセスして値を取ってくる関数
+const requestApiData = async (apiUrl, arr , key) => {
+  // const response = await fetch(apiUrl)
+  const data = await fetch(apiUrl)
+  const res = await data.json()
+  console.log("fetch")
+  // キーとオブジェクトを分けないと代入できなかった
+  arr[key] = res['Time Series FX (Daily)']['2023-08-14']
+  console.log(foreignRates)
 }
 
 // ひな型完成
@@ -96,42 +102,13 @@ const fetchRates = (rates) => {
     const url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=${key}&apikey=${pass}`
 
     // どうやってもurlから取ってきた値が代入できないので次回へ持ち越し
-    fetch(url)
-      .then(
-        (response) => response.json()
-      )
-      .then(
-        (data) => setValue(rates[key], data['Time Series FX (Daily)'])
-      )
+    // console.log(key)
+    requestApiData(url, rates, key)
+
     sleep(3000)
-    console.log(rates)
+    // console.log(rates)
     })
   }
-
-// apiにアクセスして値を取ってくる関数
-const requestApiData = (apiUrl) => {
-  return fetch(apiUrl)
-  // .then(
-  //   (response) => response.json()
-  // )
-  // .then(
-  //   (data) => console.log(data)
-  // )
-  // request.get({
-  //   url: apiUrl,
-  //   json: true,
-  //   headers: {'User-Agent': 'request'}
-  //   }, (err, res, data) => {
-  //     if (err) {
-  //       console.log('Error:', err);
-  //     } else if (res.statusCode !== 200) {
-  //       console.log('Status:', res.statusCode);
-  //     } else {
-  //       foreignRates['USD'] = data['Time Series FX (Daily)']
-  //     }
-  // })
-
-}
 
 fetchRates(foreignRates)
 
